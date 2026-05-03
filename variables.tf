@@ -59,3 +59,25 @@ variable "pri-availability-zone" {
   type = list(string)
 }
 variable "pri-sub-name" {}
+
+# Route tables 
+variable "public-rt-name" {
+  type        = string
+  description = "Public Route Table Name"
+}
+
+# NAT Gateway 
+variable "nat_gw_name" {
+  type        = string
+  description = "NAT Gateway Name"
+}
+
+variable "eip_name" {
+  type        = string
+  description = "Elastic IP Name"
+}
+
+variable "private-rt-name" {
+  type        = string
+  description = "Private Route Table Name"
+}
