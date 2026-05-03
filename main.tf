@@ -53,3 +53,12 @@ module "nat" {
   nat_gw_name       = var.nat_gw_name
   public_subnet_ids = module.subnets.public_subnets
 }
+
+module "sg" {
+  source         = "./modules/sg"
+  vpc_id         = module.vpc.vpc_id
+  env            = var.env
+  sg_name        = var.sg_name
+  sg_description = var.sg_description
+  cluster-name   = var.cluster-name
+}

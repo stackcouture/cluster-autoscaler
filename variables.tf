@@ -81,3 +81,14 @@ variable "private-rt-name" {
   type        = string
   description = "Private Route Table Name"
 }
+
+# Security Group 
+variable "sg_name" {
+  type        = string
+  description = "Security Group Name"
+}
+
+variable "sg_description" {
+  type        = string
+  description = "Security Group Desription"
+}
