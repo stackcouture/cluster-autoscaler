@@ -92,3 +92,19 @@ variable "sg_description" {
   type        = string
   description = "Security Group Desription"
 }
+
+# IAM Role Varibales 
+variable "is_eks_role_enabled" {
+  type        = bool
+  description = "EKS Role enabled"
+}
+
+variable "is_eks_nodegroup_role_enabled" {
+  type        = bool
+  description = "EKS NodeGroup Role enabled"
+}
+
+variable "aws_region" {
+  type        = string
+  description = "AWS Region Name"
+}

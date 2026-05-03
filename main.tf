@@ -62,3 +62,11 @@ module "sg" {
   sg_description = var.sg_description
   cluster-name   = var.cluster-name
 }
+
+module "iam" {
+  source                        = "./modules/iam"
+  cluster-name                  = var.cluster-name
+  aws_region                    = var.aws_region
+  is_eks_nodegroup_role_enabled = var.is_eks_nodegroup_role_enabled
+  is_eks_role_enabled           = var.is_eks_role_enabled
+}
