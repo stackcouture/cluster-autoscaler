@@ -70,3 +70,22 @@ module "iam" {
   is_eks_nodegroup_role_enabled = var.is_eks_nodegroup_role_enabled
   is_eks_role_enabled           = var.is_eks_role_enabled
 }
+
+module "eks" {
+  source                    = "./modules/eks"
+  cluster-name              = var.cluster-name
+  is-eks-cluster-enabled    = var.is-eks-cluster-enabled
+  kubernetes_version        = var.kubernetes_version
+  endpoint-private-access   = var.endpoint-private-access
+  endpoint-public-access    = var.endpoint-public-access
+  aws_eks_security_group_id = module.sg.eks-cluster-sg-id
+  eks-cluster-role-arn      = module.iam.eks-cluster-role-arn
+  private_subnet_ids        = module.subnets.private_subnets
+  env                       = var.env
+  desired_capacity          = var.desired_capacity
+  min_capacity              = var.min_capacity
+  max_capacity              = var.max_capacity
+  instance_types            = var.instance_types
+  node_eks_role_arn         = module.iam.eks-nodegroup-role-arn
+  addons                    = var.addons
+}
