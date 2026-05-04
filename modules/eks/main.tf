@@ -73,28 +73,25 @@ resource "aws_eks_addon" "addons" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
+  configuration_values = each.key == "vpc-cni" ? jsonencode({
+    env = {
+      ENABLE_PREFIX_DELEGATION = "true"
+      WARM_PREFIX_TARGET       = "1"
+    }
+  }) : null
+
+
   depends_on = [aws_eks_node_group.ondemand-node]
 }
-
-# # Add Ons 
-# resource "aws_eks_addon" "eks-addons" {
-#   for_each      = { for idx, addon in var.addons : idx => addon }
-#   cluster_name  = aws_eks_cluster.eks[0].name
-#   addon_name    = each.value.name
-#   addon_version = each.value.version
-
-#   depends_on = [aws_eks_node_group.ondemand-node]
-# }
-
 
 resource "aws_eks_node_group" "ondemand-node" {
   cluster_name    = aws_eks_cluster.eks[0].name
   node_group_name = "${var.cluster-name}-ondemand-node-group"
   node_role_arn   = var.node_eks_role_arn # aws_iam_role.eks_nodegroup_role[0].arn
 
-  for_each = { for idx, subnet_id in var.private_subnet_ids : idx => subnet_id }
-  #subnet_id      = each.value
-  subnet_ids = [each.value]
+  # for_each = { for idx, subnet_id in var.private_subnet_ids : idx => subnet_id }
+  # subnet_ids = [each.value]
+  subnet_ids = var.private_subnet_ids
 
   scaling_config {
     desired_size = var.desired_capacity
@@ -115,7 +112,9 @@ resource "aws_eks_node_group" "ondemand-node" {
 
 
   tags = {
-    "Name" = "${var.cluster-name}-ondemand-nodes"
+    "Name"                                          = "${var.cluster-name}-ondemand-nodes"
+    "k8s.io/cluster-autoscaler/enabled"             = "true"
+    "k8s.io/cluster-autoscaler/${var.cluster-name}" = "owned"
   }
 
   tags_all = {
@@ -124,3 +123,43 @@ resource "aws_eks_node_group" "ondemand-node" {
 
   depends_on = [aws_eks_cluster.eks]
 }
+
+# resource "aws_eks_node_group" "spot-node" {
+#   cluster_name    = aws_eks_cluster.eks[0].name
+#   node_group_name = "${var.cluster-name}-spot-node-group"
+#   node_role_arn   = var.node_eks_role_arn
+
+#   subnet_ids = var.private_subnet_ids
+
+#   scaling_config {
+#     desired_size = 0
+#     min_size     = 0
+#     max_size     = 10
+#   }
+
+#   instance_types = [
+#     "t3.large",
+#     "t3a.large",
+#     "m5.large",
+#     "m5a.large"
+#   ]
+
+#   capacity_type = "SPOT"
+
+#   labels = {
+#     type = "spot"
+#   }
+
+#   update_config {
+#     max_unavailable = 1
+#   }
+
+#   tags = {
+#     Name = "${var.cluster-name}-spot-nodes"
+
+#     "k8s.io/cluster-autoscaler/enabled"             = "true"
+#     "k8s.io/cluster-autoscaler/${var.cluster-name}" = "owned"
+#   }
+
+#   depends_on = [aws_eks_cluster.eks]
+# }
