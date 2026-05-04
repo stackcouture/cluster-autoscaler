@@ -53,15 +53,38 @@ data "aws_iam_policy_document" "eks_oidc_assume_role_policy" {
   }
 }
 
-# Add Ons 
-resource "aws_eks_addon" "eks-addons" {
-  for_each      = { for idx, addon in var.addons : idx => addon }
+data "aws_eks_addon_version" "this" {
+  for_each = toset([
+    "vpc-cni",
+    "coredns",
+    "kube-proxy",
+  ])
+  addon_name         = each.value
+  kubernetes_version = aws_eks_cluster.eks[0].version
+  most_recent        = true
+}
+
+resource "aws_eks_addon" "addons" {
+  for_each      = data.aws_eks_addon_version.this
   cluster_name  = aws_eks_cluster.eks[0].name
-  addon_name    = each.value.name
+  addon_name    = each.key
   addon_version = each.value.version
+
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
 
   depends_on = [aws_eks_node_group.ondemand-node]
 }
+
+# # Add Ons 
+# resource "aws_eks_addon" "eks-addons" {
+#   for_each      = { for idx, addon in var.addons : idx => addon }
+#   cluster_name  = aws_eks_cluster.eks[0].name
+#   addon_name    = each.value.name
+#   addon_version = each.value.version
+
+#   depends_on = [aws_eks_node_group.ondemand-node]
+# }
 
 
 resource "aws_eks_node_group" "ondemand-node" {

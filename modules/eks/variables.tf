@@ -68,9 +68,9 @@ variable "instance_types" {
   description = "Instance Types"
 }
 
-variable "addons" {
-  type = list(object({
-    name    = string
-    version = string
-  }))
-}
+# variable "addons" {
+#   type = list(object({
+#     name    = string
+#     version = string
+#   }))
+# }

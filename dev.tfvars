@@ -36,7 +36,7 @@ is_eks_nodegroup_role_enabled = true
 aws_region                    = "ap-south-1"
 
 is-eks-cluster-enabled  = true
-kubernetes_version      = "1.34"
+kubernetes_version      = "1.30"
 endpoint-private-access = true
 endpoint-public-access  = false
 
@@ -46,23 +46,23 @@ desired_capacity = 1
 min_capacity     = 1
 max_capacity     = 2
 
-addons = [
-  {
-    name    = "vpc-cni",
-    version = "v1.20.0-eksbuild.1"
-  },
-  {
-    name    = "coredns"
-    version = "v1.12.2-eksbuild.4"
-  },
-  {
-    name    = "kube-proxy"
-    # version = "v1.33.0-eksbuild.2"
-    version = "v1.34.6-eksbuild.5"
-  },
-  {
-    name    = "aws-ebs-csi-driver"
-    version = "v1.46.0-eksbuild.1"
-  }
-  # Add more addons as needed
-]
+# addons = [
+#   {
+#     name    = "vpc-cni",
+#     version = "v1.20.0-eksbuild.1"
+#   },
+#   {
+#     name    = "coredns"
+#     version = "v1.12.2-eksbuild.4"
+#   },
+#   {
+#     name    = "kube-proxy"
+#     # version = "v1.33.0-eksbuild.2"
+#     version = "v1.34.6-eksbuild.5"
+#   },
+#   {
+#     name    = "aws-ebs-csi-driver"
+#     version = "v1.46.0-eksbuild.1"
+#   }
+#   # Add more addons as needed
+# ]
