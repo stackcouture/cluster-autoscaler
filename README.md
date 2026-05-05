@@ -330,6 +330,6 @@ Follow these steps to confirm that **IRSA + Cluster Autoscaler** is working corr
 kubectl describe sa cluster-autoscaler -n kube-system
 ```
 ### 👉 Expected Output
-```bash eks.amazonaws.com/role-arn ``` annotation is present
+eks.amazonaws.com/role-arn  annotation is present
 Correct IAM Role ARN is attached
 ---
