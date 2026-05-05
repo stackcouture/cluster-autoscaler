@@ -64,3 +64,90 @@ This project demonstrates a **production-ready implementation of Kubernetes Clus
 - **Pods** – workload drivers
 
 ---
+## 🔐 IAM Setup for Cluster Autoscaler (IRSA)
+
+This section configures secure AWS access for Cluster Autoscaler using **IAM Roles for Service Accounts (IRSA)**.
+
+---
+
+## 📄 IAM Policy (Permissions)
+
+```hcl
+data "aws_iam_policy_document" "autoscaler" {
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeScalingActivities",
+      "autoscaling:DescribeTags",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeLaunchTemplateVersions"
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "eks:DescribeNodegroup",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${local.cluster_name}"
+      values   = ["owned"]
+    }
+  }
+}
+```
+## Explanation
+
+### 1. Read-Only Permissions
+The first statement grants **read-only access** to AWS resources.  
+This is required for the autoscaler to **discover and understand the current infrastructure state**, including:
+
+- Auto Scaling Groups
+- EC2 instance types
+- Launch configurations
+- Scaling activities
+
+---
+
+### 2. Scaling Permissions
+The second statement provides permissions to **modify infrastructure capacity**, allowing the autoscaler to:
+
+- Increase node count when demand rises
+- Decrease node count when resources are underutilized
+
+---
+
+### 3. Security Condition (Critical)
+
+A condition block is applied to restrict scaling actions based on resource tags.
+
+#### Purpose:
+- Ensures actions are performed **only on node groups belonging to the specific cluster**
+- Prevents accidental or unauthorized scaling of resources in **other clusters**
+
+#### Benefit:
+- Acts as a **critical security control**
+- Avoids **cross-cluster impact**
+- Enforces **least privilege principle**
+
+---
+
+## ✅ Summary
+
+| Component            | Purpose                                   |
+|---------------------|--------------------------------------------|
+| Read Permissions     | Discover infrastructure state             |
+| Scaling Permissions  | Adjust cluster capacity                   |
+| Condition Block      | Enforce cluster-level isolation & security|
+---
