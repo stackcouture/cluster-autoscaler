@@ -42,11 +42,7 @@ This project demonstrates a **production-ready implementation of Kubernetes Clus
                   +------------------+
 ```
 ---
-## 🧠 Architecture Diagram
-
-![Cluster Autoscaler Architecture](https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/images/cluster-autoscaler-aws.png)
-
-### 🔍 Flow Explanation
+### Flow Explanation
 
 1. Pods are created in Kubernetes
 2. Scheduler tries to place them on nodes
