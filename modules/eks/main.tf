@@ -88,9 +88,6 @@ resource "aws_eks_node_group" "ondemand-node" {
   cluster_name    = aws_eks_cluster.eks[0].name
   node_group_name = "${var.cluster-name}-ondemand-node-group"
   node_role_arn   = var.node_eks_role_arn # aws_iam_role.eks_nodegroup_role[0].arn
-
-  # for_each = { for idx, subnet_id in var.private_subnet_ids : idx => subnet_id }
-  # subnet_ids = [each.value]
   subnet_ids = var.private_subnet_ids
 
   scaling_config {

@@ -72,3 +72,76 @@ resource "aws_iam_role_policy_attachment" "eks-AmazonEBSCSIDriverPolicy" {
   role       = aws_iam_role.eks-nodegroup-role[count.index].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
+
+data "aws_iam_policy_document" "autoscaler" {
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeScalingActivities",
+      "autoscaling:DescribeTags",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeLaunchTemplateVersions"
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "eks:DescribeNodegroup",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${local.cluster_name}"
+      values   = ["owned"]
+    }
+  }
+}
+
+resource "aws_iam_policy" "autoscaler" {
+  name   = "${var.cluster-name}-autoscaler"
+  policy = data.aws_iam_policy_document.autoscaler.json
+}
+
+data "aws_iam_policy_document" "autoscaler_assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [var.oidc_provider_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(var.oidc_provider_url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:cluster-autoscaler"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(var.oidc_provider_url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "autoscaler" {
+  name               = "${var.cluster-name}-autoscaler"
+  assume_role_policy = data.aws_iam_policy_document.autoscaler_assume.json
+}
+
+resource "aws_iam_role_policy_attachment" "autoscaler" {
+  role       = aws_iam_role.autoscaler.name
+  policy_arn = aws_iam_policy.autoscaler.arn
+}
+

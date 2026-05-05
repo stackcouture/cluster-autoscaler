@@ -41,7 +41,7 @@ endpoint-private-access = true
 endpoint-public-access  = false
 
 
-instance_types = ["t3.large"]
+instance_types = ["t3.medium"]
 
 desired_capacity = 1
 min_capacity     = 1

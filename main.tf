@@ -69,6 +69,8 @@ module "iam" {
   aws_region                    = var.aws_region
   is_eks_nodegroup_role_enabled = var.is_eks_nodegroup_role_enabled
   is_eks_role_enabled           = var.is_eks_role_enabled
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
 }
 
 module "eks" {
@@ -87,5 +89,4 @@ module "eks" {
   max_capacity              = var.max_capacity
   instance_types            = var.instance_types
   node_eks_role_arn         = module.iam.eks-nodegroup-role-arn
-  # addons                    = var.addons
 }

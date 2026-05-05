@@ -149,10 +149,3 @@ variable "instance_types" {
   type        = list(string)
   description = "Instance Types"
 }
-
-# variable "addons" {
-#   type = list(object({
-#     name    = string
-#     version = string
-#   }))
-# }
