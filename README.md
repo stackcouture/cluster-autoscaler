@@ -319,3 +319,17 @@ IRSA is the **only production-grade approach** for:
 | STS                   | Issues temporary credentials              |
 
 ---
+## ✅ Validation
+
+Follow these steps to confirm that **IRSA + Cluster Autoscaler** is working correctly.
+
+---
+### 1️⃣ Verify Service Account Annotation
+
+```bash
+kubectl describe sa cluster-autoscaler -n kube-system
+```
+### 👉 Expected Output
+```bash eks.amazonaws.com/role-arn ``` annotation is present
+Correct IAM Role ARN is attached
+---
