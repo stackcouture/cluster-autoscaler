@@ -151,3 +151,91 @@ A condition block is applied to restrict scaling actions based on resource tags.
 | Scaling Permissions  | Adjust cluster capacity                   |
 | Condition Block      | Enforce cluster-level isolation & security|
 ---
+## 📦 IAM Policy Resource
+
+Defines the IAM policy used by the Cluster Autoscaler.
+
+```hcl
+resource "aws_iam_policy" "autoscaler" {
+  name   = "${var.cluster-name}-autoscaler"
+  policy = data.aws_iam_policy_document.autoscaler.json
+}
+```
+---
+## 🔑 IAM Role Trust Policy (IRSA)
+
+Defines the trust relationship using IAM Roles for Service Accounts (IRSA).
+```hcl
+data "aws_iam_policy_document" "autoscaler_assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [var.oidc_provider_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(var.oidc_provider_url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:cluster-autoscaler"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(var.oidc_provider_url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+  ```
+---
+## 🔍 Explanation
+### 🎯 Service Account Restriction
+
+* Grants access only to:
+```bash  
+    kube-system/cluster-autoscaler
+```
+* Prevents any other pod from assuming this role
+---
+### 🔐 OIDC Authentication
+* Uses the EKS OIDC provider for secure authentication
+* Eliminates the need for static AWS credentials
+---
+### 🛡️ Least Privilege Enforcement
+* The sub condition ensures:
+    * Only the specific Kubernetes service account can assume the role
+* The aud condition ensures:
+    * The token is intended for AWS STS (sts.amazonaws.com)
+---
+### 🏷️ IAM Role
+
+Creates the IAM role used by the Cluster Autoscaler.
+
+```hcl 
+resource "aws_iam_role" "autoscaler" {
+  name               = "${var.cluster-name}-autoscaler"
+  assume_role_policy = data.aws_iam_policy_document.autoscaler_assume.json
+}
+```
+---
+### 🔗 Attach Policy to Role
+
+Binds the IAM policy to the IAM role.
+
+```hcl 
+resource "aws_iam_role_policy_attachment" "autoscaler" {
+  role       = aws_iam_role.autoscaler.name
+  policy_arn = aws_iam_policy.autoscaler.arn
+}
+```
+---
+✅ Summary
+| Component            | Purpose                                    |
+|----------------------|--------------------------------------------|
+| IAM Policy           | Defines autoscaler permissions             |
+| Trust Policy (IRSA)  | Enables secure role assumption via OIDC    |
+| IAM Role             | Identity used by Kubernetes service account|
+| Policy Attachment    | Grants permissions to the role             |
+
+---
