@@ -253,3 +253,69 @@ metadata:
     eks.amazonaws.com/role-arn: <IAM_ROLE_ARN>
 ```
 ---
+## 🔍 IAM Role Association with Kubernetes Service Account
+
+This setup enables secure communication between a Kubernetes workload and AWS services using **IAM Roles for Service Accounts (IRSA)**.
+
+### 📌 What This Does
+
+- Associates a **Kubernetes Service Account** with an **AWS IAM Role**
+- Allows pods (e.g., Cluster Autoscaler) to securely access AWS APIs
+
+### ⚙️ How It Works
+
+1. **OIDC Authentication**
+   - The Kubernetes Service Account is linked to an IAM Role via OIDC
+   - The pod receives a projected service account token
+
+2. **STS Assume Role**
+   - The pod uses the token to call AWS STS (`AssumeRoleWithWebIdentity`)
+   - Temporary credentials are issued dynamically
+
+3. **Secure Access**
+   - The pod uses these temporary credentials to interact with AWS services
+
+### ✅ Key Benefits
+
+- ❌ No hardcoded AWS credentials inside pods
+- 🔐 Fine-grained IAM permissions per workload
+- 🔄 Automatic credential rotation via STS
+- 🚀 Follows AWS security best practices
+
+### 📦 Example Use Case
+
+Cluster Autoscaler uses this setup to:
+- Discover Auto Scaling Groups
+- Scale nodes up/down dynamically
+
+---
+
+### 🧠 Why This Matters
+
+If you're still injecting AWS keys into pods, that's not just outdated — it's risky and lazy engineering.
+
+IRSA is the **only production-grade approach** for:
+- EKS security
+- Least privilege access
+- Auditable IAM control
+
+---
+
+### 🔗 Prerequisites
+
+- EKS cluster with **OIDC provider enabled**
+- IAM Role with required policies
+- Service Account annotated with IAM Role ARN
+
+---
+
+### 📌 Summary
+
+| Component              | Role                                      |
+|-----------------------|-------------------------------------------|
+| Service Account       | Identity inside Kubernetes                |
+| OIDC Provider         | Trust bridge between EKS and AWS IAM      |
+| IAM Role              | Defines permissions                       |
+| STS                   | Issues temporary credentials              |
+
+---
