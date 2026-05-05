@@ -333,3 +333,38 @@ kubectl describe sa cluster-autoscaler -n kube-system
 eks.amazonaws.com/role-arn  annotation is present
 Correct IAM Role ARN is attached
 ---
+
+## 🔗 Attach IAM Role to Cluster Autoscaler (IRSA)
+
+To enable Cluster Autoscaler to access AWS APIs securely, attach an IAM role to its Kubernetes Service Account using IRSA.
+
+---
+
+## ✅ Option 1 — Patch Existing ServiceAccount (Recommended)
+
+Use the following command to add or update the IAM role annotation:
+
+```bash
+kubectl annotate serviceaccount cluster-autoscaler \
+  -n kube-system \
+  eks.amazonaws.com/role-arn=arn:aws:iam::104824081961:role/eks-cluster-autoscaler \
+  --overwrite
+```
+## ✅ Option 2 — Declarative YAML (Preferred for GitOps)
+
+Define the ServiceAccount with annotation:
+```bash 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::104824081961:role/eks-cluster-autoscaler
+```
+Apply the configuration:
+
+```bash 
+kubectl apply -f sa.yaml
+```
+---
