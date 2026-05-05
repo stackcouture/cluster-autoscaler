@@ -42,3 +42,29 @@ This project demonstrates a **production-ready implementation of Kubernetes Clus
                   +------------------+
 ```
 ---
+## 🧠 Architecture Diagram
+
+![Cluster Autoscaler Architecture](https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/images/cluster-autoscaler-aws.png)
+
+### 🔍 Flow Explanation
+
+1. Pods are created in Kubernetes
+2. Scheduler tries to place them on nodes
+3. If unschedulable → marked as `Pending`
+4. Cluster Autoscaler detects this
+5. Calls AWS Auto Scaling Group (ASG)
+6. New EC2 node is launched
+7. Node joins cluster
+8. Pod gets scheduled
+
+---
+
+## 🏗️ Architecture Components
+
+- **Kubernetes API Server** – control plane
+- **Cluster Autoscaler** – decision engine
+- **AWS Auto Scaling Group (ASG)** – node provisioning
+- **EC2 Worker Nodes** – compute layer
+- **Pods** – workload drivers
+
+---
