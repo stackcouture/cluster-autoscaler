@@ -330,11 +330,12 @@ Follow these steps to confirm that **IRSA + Cluster Autoscaler** is working corr
 kubectl describe sa cluster-autoscaler -n kube-system
 ```
 ### 👉 Expected Output
-eks.amazonaws.com/role-arn  annotation is present
-Correct IAM Role ARN is attached
+
+eks.amazonaws.com/role-arn 
+annotation is present Correct IAM Role ARN is attached
 ---
 
-## 🔗 Attach IAM Role to Cluster Autoscaler (IRSA)
+### 🔗 Attach IAM Role to Cluster Autoscaler (IRSA)
 
 To enable Cluster Autoscaler to access AWS APIs securely, attach an IAM role to its Kubernetes Service Account using IRSA.
 
@@ -367,4 +368,36 @@ Apply the configuration:
 ```bash 
 kubectl apply -f sa.yaml
 ```
+---
+
+## 🔍 Verification
+
+Ensure the annotation is applied correctly:
+
+```bash 
+kubectl describe sa cluster-autoscaler -n kube-system
+```
+Expected output:
+
+Annotations:
+```bash 
+  eks.amazonaws.com/role-arn: arn:aws:iam::104824081961:role/eks-cluster-autoscaler
+```
+⚠️ Notes
+
+* Ensure IAM trust policy allows:
+```bash 
+system:serviceaccount:kube-system:cluster-autoscaler
+```
+* Restart the autoscaler pod if required:
+```bash 
+kubectl delete pod -n kube-system -l app=cluster-autoscaler
+```
+
+### 🎯 Key Takeaway
+This step securely connects Kubernetes with AWS:
+
+* No static credentials
+* Fine-grained IAM permissions
+* Required for Cluster Autoscaler to function
 ---
