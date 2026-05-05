@@ -239,3 +239,17 @@ resource "aws_iam_role_policy_attachment" "autoscaler" {
 | Policy Attachment    | Grants permissions to the role             |
 
 ---
+## ⚙️ Kubernetes Service Account Annotation
+
+Bind the IAM role to the Cluster Autoscaler pod using **IRSA annotation**:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: <IAM_ROLE_ARN>
+```
+---
