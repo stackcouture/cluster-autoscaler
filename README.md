@@ -1100,3 +1100,135 @@ aws autoscaling describe-scaling-activities \
 > **💡 Tip:** Most Cluster Autoscaler issues are related to **missing Auto Scaling Group tags**, **incorrect IRSA permissions**, **resource scheduling constraints**, or **version incompatibility**. Always start troubleshooting by reviewing the Cluster Autoscaler logs, Kubernetes events, and the status of your Auto Scaling Groups.
 
 ---
+## 🧹 Cleanup
+
+After completing the demonstration or testing, remove the Cluster Autoscaler resources and associated AWS infrastructure to avoid unnecessary charges.
+
+> **⚠️ Note:** Deleting the EKS cluster will permanently remove all Kubernetes resources running in the cluster. Ensure you have backed up any required data before proceeding.
+
+---
+### 1️⃣ Delete the Cluster Autoscaler
+
+Remove the Cluster Autoscaler deployment from the cluster.
+
+```bash
+kubectl delete deployment cluster-autoscaler -n kube-system
+```
+
+Or, if installed using a manifest:
+
+```bash
+kubectl delete -f cluster-autoscaler.yaml
+```
+
+---
+### 2️⃣ Delete the IAM Service Account (IRSA)
+
+If the IAM Service Account was created using `eksctl`, delete it using:
+
+```bash
+eksctl delete iamserviceaccount \
+  --cluster <cluster-name> \
+  --namespace kube-system \
+  --name cluster-autoscaler
+```
+
+---
+### 3️⃣ Remove the IAM Policy
+
+Delete the IAM policy created for Cluster Autoscaler.
+
+```bash
+aws iam delete-policy \
+  --policy-arn arn:aws:iam::<ACCOUNT_ID>:policy/AmazonEKSClusterAutoscalerPolicy
+```
+
+> Replace `<ACCOUNT_ID>` with your AWS account ID.
+
+---
+### 4️⃣ Remove Auto Scaling Group Tags (Optional)
+
+If you plan to reuse the node group without Cluster Autoscaler, remove the auto-discovery tags.
+
+```text
+k8s.io/cluster-autoscaler/enabled=true
+
+k8s.io/cluster-autoscaler/<cluster-name>=owned
+```
+
+These tags can be removed through the AWS Management Console or AWS CLI.
+
+---
+### 5️⃣ Delete the Amazon EKS Cluster (Optional)
+
+If the cluster was created specifically for this project, delete it.
+
+Using `eksctl`:
+
+```bash
+eksctl delete cluster --name <cluster-name> --region <aws-region>
+```
+
+Or using the AWS CLI:
+
+```bash
+aws eks delete-cluster \
+  --name <cluster-name>
+```
+
+---
+### 6️⃣ Delete Additional AWS Resources (Optional)
+
+Remove any resources created specifically for the project, such as:
+
+- Amazon EC2 instances
+- EC2 Auto Scaling Groups
+- Launch Templates
+- IAM Roles
+- IAM Policies
+- Amazon VPC (if dedicated)
+- Security Groups
+- CloudWatch Log Groups
+
+---
+### 7️⃣ Verify Resource Deletion
+
+Ensure all Kubernetes resources have been removed.
+
+```bash
+kubectl get pods -A
+
+kubectl get nodes
+```
+
+Verify the EKS cluster has been deleted.
+
+```bash
+aws eks list-clusters
+```
+
+Verify no unnecessary Auto Scaling Groups remain.
+
+```bash
+aws autoscaling describe-auto-scaling-groups
+```
+
+---
+### ✅ Cleanup Checklist
+
+- [ ] Cluster Autoscaler deployment removed
+- [ ] IAM Service Account (IRSA) deleted
+- [ ] IAM policy removed
+- [ ] Auto Scaling Group tags removed (optional)
+- [ ] Amazon EKS cluster deleted (optional)
+- [ ] EC2 Auto Scaling Groups removed (if applicable)
+- [ ] IAM roles and policies cleaned up
+- [ ] VPC and networking resources removed (if dedicated)
+- [ ] CloudWatch log groups deleted (optional)
+- [ ] AWS billing dashboard verified for no remaining billable resources
+
+---
+
+> **💡 Tip:** Always verify that Amazon EC2 instances, Auto Scaling Groups, Load Balancers, Elastic IPs, and EBS volumes have been deleted. These resources can continue to incur charges even after the Kubernetes cluster has been removed.
+
+---
