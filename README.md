@@ -641,3 +641,118 @@ Cluster Capacity Optimized
 - 📊 Efficient resource utilization
 
 ---
+## 💰 Cost Optimization
+
+Kubernetes Cluster Autoscaler helps optimize infrastructure costs by dynamically adjusting the number of worker nodes based on application demand. Instead of running a fixed number of EC2 instances, the cluster automatically scales up during peak workloads and scales down when resources are no longer required.
+
+---
+
+### 🎯 Cost Optimization Strategies
+
+#### 📉 Automatic Scale-Down
+
+- Removes underutilized or idle worker nodes automatically.
+- Prevents paying for unused EC2 instances.
+- Reduces infrastructure costs during low-traffic periods.
+
+#### 🚀 Scale Only When Required
+
+- Launches additional worker nodes only when pods cannot be scheduled.
+- Eliminates unnecessary over-provisioning.
+- Ensures compute resources match actual workload demand.
+
+#### 📊 Efficient Resource Utilization
+
+- Maximizes CPU and memory utilization across worker nodes.
+- Consolidates workloads before removing idle nodes.
+- Minimizes wasted cluster capacity.
+
+#### ⏳ Scale-Down Delay
+
+- Waits for a configurable period before terminating underutilized nodes.
+- Prevents frequent scale-up and scale-down cycles (node flapping).
+- Improves workload stability while maintaining cost efficiency.
+
+#### ☁️ Auto Scaling Group Optimization
+
+- Dynamically adjusts the desired capacity of Amazon EC2 Auto Scaling Groups.
+- Ensures the cluster always maintains the required number of worker nodes.
+- Supports multiple managed node groups for workload-specific scaling.
+
+#### 🔒 Safe Node Removal
+
+Before terminating a node, Cluster Autoscaler:
+
+- Drains the node gracefully.
+- Reschedules pods onto healthy worker nodes.
+- Protects critical system workloads from disruption.
+- Avoids removing nodes that cannot be safely drained.
+
+#### 📈 Right-Sized Infrastructure
+
+- Matches cluster capacity with application demand.
+- Reduces idle compute resources.
+- Improves overall infrastructure efficiency.
+
+---
+
+## 📊 Cost Optimization Workflow
+
+```text
+Application Workload Drops
+            │
+            ▼
+Worker Nodes Become
+Underutilized
+            │
+            ▼
+Cluster Autoscaler
+Evaluates Node Usage
+            │
+            ▼
+Node Eligible for
+Scale-Down?
+       │
+      Yes
+       ▼
+Drain Node Gracefully
+(Evict Pods)
+       │
+       ▼
+Pods Rescheduled
+to Other Nodes
+       │
+       ▼
+Terminate EC2 Instance
+via Auto Scaling Group
+       │
+       ▼
+Lower AWS Infrastructure Cost
+```
+
+---
+
+## ✅ Best Practices
+
+- Configure realistic **CPU** and **memory requests** for all workloads.
+- Avoid over-provisioning worker nodes.
+- Use separate node groups for system and application workloads.
+- Enable Cluster Autoscaler auto-discovery for managed node groups.
+- Set appropriate minimum and maximum node counts.
+- Monitor cluster utilization using **Amazon CloudWatch**, **Prometheus**, and **Grafana**.
+- Review scale-down logs regularly to identify optimization opportunities.
+- Combine Cluster Autoscaler with **Horizontal Pod Autoscaler (HPA)** for efficient pod and node scaling.
+
+---
+
+## 🌟 Benefits
+
+- 💰 Reduces Amazon EC2 infrastructure costs
+- 📉 Eliminates idle worker nodes automatically
+- ⚡ Provides compute resources only when needed
+- 📈 Improves overall cluster utilization
+- 🚀 Supports elastic and scalable workloads
+- 🔄 Fully automated node lifecycle management
+- ☸️ Production-ready cost optimization for Amazon EKS
+
+---
