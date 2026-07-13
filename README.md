@@ -895,3 +895,208 @@ Validate the deployment by testing:
 > **💡 Tip:** Kubernetes Cluster Autoscaler works best when combined with **Horizontal Pod Autoscaler (HPA)**. HPA scales application pods based on workload demand, while Cluster Autoscaler automatically adjusts the number of worker nodes to provide the required cluster capacity.
 
 ---
+## 🛠️ Troubleshooting
+
+This section covers common issues encountered when deploying and operating Kubernetes Cluster Autoscaler on Amazon EKS, along with their causes and recommended solutions.
+
+---
+### 🔍 Check Cluster Autoscaler Status
+
+Verify that the Cluster Autoscaler pod is running correctly.
+
+```bash
+kubectl get pods -n kube-system | grep cluster-autoscaler
+
+kubectl describe pod <cluster-autoscaler-pod> -n kube-system
+
+kubectl logs -f deployment/cluster-autoscaler -n kube-system
+```
+
+---
+### 📋 Verify Worker Nodes
+
+Ensure all worker nodes are in the **Ready** state.
+
+```bash
+kubectl get nodes
+
+kubectl describe node <node-name>
+```
+
+---
+### 📋 Check Pending Pods
+
+Identify pods that cannot be scheduled.
+
+```bash
+kubectl get pods --all-namespaces
+
+kubectl get pods -A --field-selector=status.phase=Pending
+
+kubectl describe pod <pod-name> -n <namespace>
+```
+
+Look for events such as:
+
+```text
+0/3 nodes are available: Insufficient cpu.
+0/3 nodes are available: Insufficient memory.
+0/3 nodes are available: node(s) didn't match node selector.
+```
+
+---
+### 📋 Verify Cluster Autoscaler Logs
+
+Monitor autoscaler decisions and scaling events.
+
+```bash
+kubectl logs -f deployment/cluster-autoscaler -n kube-system
+```
+
+Example log messages:
+
+```text
+Pod is unschedulable
+Scale-up triggered
+Increasing ASG desired capacity
+Node group successfully scaled
+Scale-down: removing empty node
+```
+
+---
+### ☁️ Verify Auto Scaling Groups
+
+Check the status of the EC2 Auto Scaling Group.
+
+```bash
+aws autoscaling describe-auto-scaling-groups
+```
+
+Verify:
+
+- Desired Capacity
+- Minimum Size
+- Maximum Size
+- Instance Health
+- Scaling Activities
+
+---
+### 🏷️ Verify Auto Discovery Tags
+
+Ensure the Auto Scaling Group contains the required tags.
+
+```text
+k8s.io/cluster-autoscaler/enabled=true
+
+k8s.io/cluster-autoscaler/<cluster-name>=owned
+```
+
+Without these tags, Cluster Autoscaler cannot discover the node group.
+
+---
+### 🔐 Verify IRSA Configuration
+
+Confirm the Service Account is associated with the correct IAM Role.
+
+```bash
+kubectl describe serviceaccount cluster-autoscaler -n kube-system
+```
+
+Verify the annotation:
+
+```text
+eks.amazonaws.com/role-arn=<IAM_ROLE_ARN>
+```
+
+Also confirm the IAM policy includes permissions for:
+
+- Auto Scaling
+- EC2
+- Describe APIs
+
+---
+### 📊 Verify Kubernetes Events
+
+Check for scheduling failures and scaling events.
+
+```bash
+kubectl get events -A --sort-by=.metadata.creationTimestamp
+```
+
+Look for messages such as:
+
+```text
+FailedScheduling
+TriggeredScaleUp
+ScaledUpGroup
+NotTriggerScaleUp
+```
+
+---
+### 🚨 Common Issues and Solutions
+
+| Issue | Possible Cause | Resolution |
+|--------|----------------|------------|
+| Pods remain Pending | Insufficient CPU or Memory | Increase node group maximum size or reduce resource requests |
+| No scale-up occurs | Missing Auto Scaling Group tags | Add Cluster Autoscaler discovery tags |
+| AccessDenied errors | Incorrect IAM Role or IRSA | Verify IAM policy and Service Account annotation |
+| Autoscaler CrashLoopBackOff | Invalid configuration or version mismatch | Check logs and use a compatible Cluster Autoscaler version |
+| Nodes are not removed | Scale-down disabled or protected pods | Review scale-down settings and Pod Disruption Budgets |
+| Node group not discovered | Incorrect cluster name or tags | Verify Auto Discovery tags and cluster name |
+| Pods cannot be scheduled | Node selector, affinity, or taints | Verify scheduling constraints and node labels |
+| Scale-up is slow | EC2 launch time | Use appropriate instance types and maintain a minimum node count |
+
+---
+### 📈 Useful Monitoring Commands
+
+#### Cluster Overview
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+kubectl top nodes
+kubectl top pods -A
+```
+
+#### Autoscaler Deployment
+
+```bash
+kubectl get deployment cluster-autoscaler -n kube-system
+
+kubectl rollout status deployment/cluster-autoscaler -n kube-system
+```
+
+#### Node Events
+
+```bash
+kubectl describe node <node-name>
+```
+
+#### Auto Scaling Activities
+
+```bash
+aws autoscaling describe-scaling-activities \
+  --auto-scaling-group-name <asg-name>
+```
+
+---
+### ✅ Troubleshooting Checklist
+
+- [ ] Cluster Autoscaler pod is running
+- [ ] Worker nodes are in **Ready** state
+- [ ] Pending pods exist due to resource constraints
+- [ ] Auto Scaling Group discovery tags are configured
+- [ ] IAM Role for Service Account (IRSA) is correctly configured
+- [ ] Required IAM permissions are attached
+- [ ] Kubernetes Events show scale-up activity
+- [ ] Cluster Autoscaler logs contain no errors
+- [ ] Auto Scaling Group has available capacity
+- [ ] Cluster Autoscaler version matches the Kubernetes version
+- [ ] Node labels, taints, tolerations, and affinity rules are correctly configured
+- [ ] EC2 instance quotas are sufficient for new node provisioning
+
+---
+
+> **💡 Tip:** Most Cluster Autoscaler issues are related to **missing Auto Scaling Group tags**, **incorrect IRSA permissions**, **resource scheduling constraints**, or **version incompatibility**. Always start troubleshooting by reviewing the Cluster Autoscaler logs, Kubernetes events, and the status of your Auto Scaling Groups.
+
+---
