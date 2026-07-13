@@ -184,7 +184,6 @@ kubectl get nodes
 8. Pod gets scheduled
 
 ---
-
 ## 🏗️ Architecture Components
 
 - **Kubernetes API Server** – control plane
@@ -199,8 +198,7 @@ kubectl get nodes
 This section configures secure AWS access for Cluster Autoscaler using **IAM Roles for Service Accounts (IRSA)**.
 
 ---
-
-## 📄 IAM Policy (Permissions)
+### 📄 IAM Policy (Permissions)
 
 ```hcl
 data "aws_iam_policy_document" "autoscaler" {
@@ -237,9 +235,9 @@ data "aws_iam_policy_document" "autoscaler" {
   }
 }
 ```
-## Explanation
+### Explanation
 
-### 1. Read-Only Permissions
+#### 1. Read-Only Permissions
 The first statement grants **read-only access** to AWS resources.  
 This is required for the autoscaler to **discover and understand the current infrastructure state**, including:
 
@@ -249,39 +247,37 @@ This is required for the autoscaler to **discover and understand the current inf
 - Scaling activities
 
 ---
-
-### 2. Scaling Permissions
+#### 2. Scaling Permissions
 The second statement provides permissions to **modify infrastructure capacity**, allowing the autoscaler to:
 
 - Increase node count when demand rises
 - Decrease node count when resources are underutilized
 
 ---
-
-### 3. Security Condition (Critical)
+#### 3. Security Condition (Critical)
 
 A condition block is applied to restrict scaling actions based on resource tags.
 
-#### Purpose:
+##### Purpose:
 - Ensures actions are performed **only on node groups belonging to the specific cluster**
 - Prevents accidental or unauthorized scaling of resources in **other clusters**
 
-#### Benefit:
+##### Benefit:
 - Acts as a **critical security control**
 - Avoids **cross-cluster impact**
 - Enforces **least privilege principle**
 
 ---
-
-## ✅ Summary
+### ✅ Summary
 
 | Component            | Purpose                                   |
 |---------------------|--------------------------------------------|
 | Read Permissions     | Discover infrastructure state             |
 | Scaling Permissions  | Adjust cluster capacity                   |
 | Condition Block      | Enforce cluster-level isolation & security|
+
 ---
-## 📦 IAM Policy Resource
+### 📦 IAM Policy Resource
 
 Defines the IAM policy used by the Cluster Autoscaler.
 
@@ -292,7 +288,7 @@ resource "aws_iam_policy" "autoscaler" {
 }
 ```
 ---
-## 🔑 IAM Role Trust Policy (IRSA)
+### 🔑 IAM Role Trust Policy (IRSA)
 
 Defines the trust relationship using IAM Roles for Service Accounts (IRSA).
 ```hcl
@@ -319,8 +315,8 @@ data "aws_iam_policy_document" "autoscaler_assume" {
   }
   ```
 ---
-## 🔍 Explanation
-### 🎯 Service Account Restriction
+### 🔍 Explanation
+#### 🎯 Service Account Restriction
 
 * Grants access only to:
 ```bash  
@@ -328,17 +324,20 @@ data "aws_iam_policy_document" "autoscaler_assume" {
 ```
 * Prevents any other pod from assuming this role
 ---
-### 🔐 OIDC Authentication
+
+#### 🔐 OIDC Authentication
 * Uses the EKS OIDC provider for secure authentication
 * Eliminates the need for static AWS credentials
+
 ---
-### 🛡️ Least Privilege Enforcement
+#### 🛡️ Least Privilege Enforcement
 * The sub condition ensures:
     * Only the specific Kubernetes service account can assume the role
 * The aud condition ensures:
     * The token is intended for AWS STS (sts.amazonaws.com)
+
 ---
-### 🏷️ IAM Role
+#### 🏷️ IAM Role
 
 Creates the IAM role used by the Cluster Autoscaler.
 
@@ -349,7 +348,7 @@ resource "aws_iam_role" "autoscaler" {
 }
 ```
 ---
-### 🔗 Attach Policy to Role
+#### 🔗 Attach Policy to Role
 
 Binds the IAM policy to the IAM role.
 
@@ -360,7 +359,9 @@ resource "aws_iam_role_policy_attachment" "autoscaler" {
 }
 ```
 ---
+
 ✅ Summary
+
 | Component            | Purpose                                    |
 |----------------------|--------------------------------------------|
 | IAM Policy           | Defines autoscaler permissions             |
@@ -369,7 +370,7 @@ resource "aws_iam_role_policy_attachment" "autoscaler" {
 | Policy Attachment    | Grants permissions to the role             |
 
 ---
-## ⚙️ Kubernetes Service Account Annotation
+### ⚙️ Kubernetes Service Account Annotation
 
 Bind the IAM role to the Cluster Autoscaler pod using **IRSA annotation**:
 
@@ -383,16 +384,16 @@ metadata:
     eks.amazonaws.com/role-arn: <IAM_ROLE_ARN>
 ```
 ---
-## 🔍 IAM Role Association with Kubernetes Service Account
+### 🔍 IAM Role Association with Kubernetes Service Account
 
 This setup enables secure communication between a Kubernetes workload and AWS services using **IAM Roles for Service Accounts (IRSA)**.
 
-### 📌 What This Does
+#### 📌 What This Does
 
 - Associates a **Kubernetes Service Account** with an **AWS IAM Role**
 - Allows pods (e.g., Cluster Autoscaler) to securely access AWS APIs
 
-### ⚙️ How It Works
+#### ⚙️ How It Works
 
 1. **OIDC Authentication**
    - The Kubernetes Service Account is linked to an IAM Role via OIDC
@@ -405,7 +406,7 @@ This setup enables secure communication between a Kubernetes workload and AWS se
 3. **Secure Access**
    - The pod uses these temporary credentials to interact with AWS services
 
-### ✅ Key Benefits
+#### ✅ Key Benefits
 
 - ❌ No hardcoded AWS credentials inside pods
 - 🔐 Fine-grained IAM permissions per workload
@@ -419,7 +420,6 @@ Cluster Autoscaler uses this setup to:
 - Scale nodes up/down dynamically
 
 ---
-
 ### 🧠 Why This Matters
 
 If you're still injecting AWS keys into pods, that's not just outdated — it's risky and lazy engineering.
@@ -428,14 +428,6 @@ IRSA is the **only production-grade approach** for:
 - EKS security
 - Least privilege access
 - Auditable IAM control
-
----
-
-### 🔗 Prerequisites
-
-- EKS cluster with **OIDC provider enabled**
-- IAM Role with required policies
-- Service Account annotated with IAM Role ARN
 
 ---
 
