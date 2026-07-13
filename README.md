@@ -522,4 +522,122 @@ This step securely connects Kubernetes with AWS:
 * No static credentials
 * Fine-grained IAM permissions
 * Required for Cluster Autoscaler to function
+
+---
+## 🔄 Cluster Autoscaler Scaling Workflow
+
+The following workflow illustrates how Kubernetes Cluster Autoscaler automatically adjusts the cluster size based on application demand.
+
+### 📈 Scale-Up Workflow
+
+```text
+Application Deployment
+         │
+         ▼
+Pods Created
+         │
+         ▼
+Kubernetes Scheduler
+Attempts to Schedule Pods
+         │
+         ▼
+Enough Resources?
+      ┌───────────────┐
+      │      Yes      │────────────► Pods Scheduled
+      └───────────────┘
+               │
+               No
+               ▼
+Pods Become Pending
+               │
+               ▼
+Cluster Autoscaler Detects
+Unschedulable Pods
+               │
+               ▼
+Find Matching Node Group
+               │
+               ▼
+Increase EC2 Auto Scaling Group
+Desired Capacity
+               │
+               ▼
+AWS Launches New EC2 Instance
+               │
+               ▼
+Node Joins Amazon EKS Cluster
+               │
+               ▼
+Scheduler Places Pending Pods
+on the New Node
+               │
+               ▼
+Application Becomes Available
+```
+
+---
+### 📉 Scale-Down Workflow
+
+```text
+Application Workload Decreases
+               │
+               ▼
+Worker Node Becomes
+Underutilized
+               │
+               ▼
+Cluster Autoscaler Waits
+for Scale-Down Delay
+               │
+               ▼
+Can Pods Be Evicted?
+               │
+        ┌───────────────┐
+        │      Yes      │
+        └───────────────┘
+               │
+               ▼
+Drain the Node
+(Evict Pods Gracefully)
+               │
+               ▼
+Pods Rescheduled
+to Other Nodes
+               │
+               ▼
+Terminate EC2 Instance
+via Auto Scaling Group
+               │
+               ▼
+Cluster Capacity Optimized
+```
+
+---
+### ⚙️ End-to-End Scaling Process
+
+1. A workload is deployed to the Kubernetes cluster.
+2. The Kubernetes Scheduler attempts to place pods on existing worker nodes.
+3. If sufficient CPU or memory is unavailable, pods remain in the **Pending** state.
+4. Cluster Autoscaler continuously monitors the cluster for unschedulable pods.
+5. It identifies the appropriate Amazon EKS Managed Node Group or EC2 Auto Scaling Group.
+6. The desired capacity of the Auto Scaling Group is increased.
+7. AWS launches a new EC2 instance.
+8. The new node joins the Amazon EKS cluster automatically.
+9. Kubernetes schedules the pending pods onto the new worker node.
+10. When workload decreases, Cluster Autoscaler identifies underutilized nodes.
+11. After the configured scale-down delay, pods are gracefully evicted and rescheduled.
+12. The empty node is removed from the cluster and the EC2 instance is terminated, reducing infrastructure costs.
+
+---
+### 🎯 Benefits of the Workflow
+
+- 🚀 Automatic infrastructure scaling
+- ☸️ Native Kubernetes scheduler integration
+- 💰 Optimized cloud infrastructure costs
+- 📈 Improved application availability
+- ⚡ Faster response to workload spikes
+- 🔐 Secure AWS integration using IRSA
+- 🛠️ Fully automated node lifecycle management
+- 📊 Efficient resource utilization
+
 ---
