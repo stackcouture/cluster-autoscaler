@@ -1232,3 +1232,109 @@ aws autoscaling describe-auto-scaling-groups
 > **💡 Tip:** Always verify that Amazon EC2 instances, Auto Scaling Groups, Load Balancers, Elastic IPs, and EBS volumes have been deleted. These resources can continue to incur charges even after the Kubernetes cluster has been removed.
 
 ---
+## 📚 References
+
+The following official documentation and resources were used while building and validating this project.
+
+### Amazon EKS
+
+- **Amazon EKS Documentation**  
+  https://docs.aws.amazon.com/eks/
+
+- **Amazon EKS User Guide**  
+  https://docs.aws.amazon.com/eks/latest/userguide/
+
+- **Amazon EKS Best Practices Guide**  
+  https://aws.github.io/aws-eks-best-practices/
+
+---
+
+### Kubernetes Cluster Autoscaler
+
+- **Cluster Autoscaler Documentation**  
+  https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler
+
+- **Cluster Autoscaler FAQ**  
+  https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md
+
+- **Cluster Autoscaler on AWS**  
+  https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws
+
+---
+
+### Kubernetes Documentation
+
+- **Kubernetes Official Documentation**  
+  https://kubernetes.io/docs/
+
+- **Kubernetes Scheduler**  
+  https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/
+
+- **Deployments**  
+  https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+
+- **Resource Management for Pods and Containers**  
+  https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+---
+
+### AWS IAM & IRSA
+
+- **IAM Roles for Service Accounts (IRSA)**  
+  https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
+
+- **OIDC Provider for Amazon EKS**  
+  https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
+
+---
+
+### Amazon EC2 Auto Scaling
+
+- **Amazon EC2 Auto Scaling Documentation**  
+  https://docs.aws.amazon.com/autoscaling/ec2/
+
+- **Auto Scaling Groups**  
+  https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-groups.html
+
+---
+
+### Monitoring & Observability
+
+- **Amazon CloudWatch Documentation**  
+  https://docs.aws.amazon.com/cloudwatch/
+
+- **Prometheus Documentation**  
+  https://prometheus.io/docs/
+
+- **Grafana Documentation**  
+  https://grafana.com/docs/
+
+---
+
+### Tools
+
+- AWS CLI – https://docs.aws.amazon.com/cli/
+- kubectl – https://kubernetes.io/docs/reference/kubectl/
+- eksctl – https://eksctl.io/
+- Helm – https://helm.sh/docs/
+
+---
+
+## 🙏 Acknowledgements
+
+Special thanks to the **Kubernetes** and **AWS** open-source communities for providing the tools, documentation, and best practices that make building scalable and production-ready cloud-native platforms possible.
+
+---
+
+## ⭐ Support
+
+If you found this project helpful:
+
+- ⭐ Star this repository
+- 🍴 Fork the repository
+- 🛠️ Contribute improvements through Pull Requests
+- 🐛 Report issues or suggest enhancements
+- 📢 Share the project with the DevOps and Kubernetes community
+
+Your support helps improve and maintain this project for everyone.
+---
