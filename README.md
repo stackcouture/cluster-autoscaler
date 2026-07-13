@@ -91,6 +91,87 @@ Through this implementation, you will learn how to:
   - Demonstrates real-world deployment, configuration, monitoring, troubleshooting, and optimization of Kubernetes Cluster Autoscaler on Amazon EKS.
 
 ---
+
+## 📋 Prerequisites
+
+Before deploying Kubernetes Cluster Autoscaler on Amazon EKS, ensure the following requirements are met:
+
+### Infrastructure
+
+- AWS Account with appropriate IAM permissions
+- Amazon EKS cluster (Kubernetes v1.29 or later recommended)
+- At least one Amazon EKS Managed Node Group
+- EC2 Auto Scaling Group associated with the node group
+- Worker nodes in **Ready** state
+
+### Required Tools
+
+| Tool | Recommended Version |
+|------|----------------------|
+| AWS CLI | v2.x |
+| kubectl | Compatible with your EKS cluster version |
+| eksctl | Latest |
+| Helm | v3.x |
+| Git | Latest |
+
+### AWS Permissions
+
+The IAM user or role used for deployment should have permissions to manage:
+
+- Amazon EKS
+- EC2
+- Auto Scaling Groups
+- IAM
+- CloudFormation (if using `eksctl`)
+- Amazon VPC (for cluster provisioning)
+
+### Kubernetes Requirements
+
+- Metrics Server installed and running
+- Kubernetes API server accessible
+- `kubectl` configured to communicate with the EKS cluster
+- Cluster Autoscaler version compatible with the Kubernetes cluster version
+
+### IAM Configuration
+
+- OpenID Connect (OIDC) provider associated with the EKS cluster
+- IAM Roles for Service Accounts (IRSA) enabled
+- Least-privilege IAM policy for Cluster Autoscaler
+
+### Auto Scaling Group Configuration
+
+- Managed Node Group or Self-Managed Node Group
+- Auto Scaling Group tagged for auto-discovery:
+
+```text
+k8s.io/cluster-autoscaler/enabled = true
+k8s.io/cluster-autoscaler/<cluster-name> = owned
+```
+
+### Verify Connectivity
+
+Before proceeding, verify access to your cluster:
+
+```bash
+aws sts get-caller-identity
+
+aws eks update-kubeconfig \
+  --region <aws-region> \
+  --name <cluster-name>
+
+kubectl get nodes
+```
+
+### Recommended Knowledge
+
+- Basic Kubernetes concepts
+- Amazon EKS fundamentals
+- IAM Roles and Policies
+- EC2 Auto Scaling Groups
+- Kubernetes Deployments and Pods
+- Basic Linux command-line experience
+
+---
 ### Flow Explanation
 
 1. Pods are created in Kubernetes
