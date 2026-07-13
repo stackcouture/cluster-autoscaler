@@ -23,6 +23,30 @@ Beyond deployment, this repository focuses on understanding the complete autosca
 - Apply production best practices for high availability, scalability, and cost optimization
 
 ---
+## 📑 Table of Contents
+
+- [🌟 Why This Project Matters](#-why-this-project-matters)
+- [🏗️ Architecture](#️-architecture)
+- [✨ Features](#-features)
+- [📋 Prerequisites](#-prerequisites)
+- [🔄 Scaling Workflow](#-cluster-autoscaler-scaling-workflow)
+- [🏗️ Architecture Components](#️-architecture-components)
+- [🔐 IAM Setup for Cluster Autoscaler (IRSA)](#-iam-setup-for-cluster-autoscaler-irsa)
+  - [📄 IAM Policy (Permissions)](#-iam-policy-permissions)
+  - [📦 IAM Policy Resource](#-iam-policy-resource)
+  - [🔑 IAM Role Trust Policy (IRSA)](#-iam-role-trust-policy-irsa)
+  - [🏷️ IAM Role](#️-iam-role)
+  - [⚙️ Kubernetes Service Account Annotation](#️-kubernetes-service-account-annotation)
+  - [✅ Validation](#-validation)
+- [💰 Cost Optimization](#-cost-optimization)
+- [🏆 Production Best Practices](#-production-best-practices)
+- [🛠️ Troubleshooting](#️-troubleshooting)
+- [🧹 Cleanup](#-cleanup)
+- [📚 References](#-references)
+- [🙏 Acknowledgements](#-acknowledgements)
+- [⭐ Support](#-support)
+
+---
 ### 🌟 Why This Project Matters
 
 Modern Kubernetes platforms require infrastructure that can automatically adapt to changing workloads while minimizing operational overhead and cloud costs. This project provides practical experience with one of the most widely used Kubernetes autoscaling solutions in production environments.
