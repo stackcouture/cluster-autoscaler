@@ -21,26 +21,9 @@ This project demonstrates a **production-ready implementation of Kubernetes Clus
 
 ## 🎯 Architecture
 
-```text
-                 +----------------------+
-                 |   Kubernetes API     |
-                 +----------+-----------+
-                            |
-                            v
-                 +----------------------+
-                 | Cluster Autoscaler   |
-                 +----------+-----------+
-                            |
-                            v
-          +--------------------------------------+
-          | AWS Auto Scaling Group (Node Group)  |
-          +----------------+---------------------+
-                           |
-                           v
-                  +------------------+
-                  | EC2 Worker Nodes |
-                  +------------------+
-```
+![Project Overview](docs/images/cluster-autoscaler.png "Architecture")
+
+
 ---
 ### Flow Explanation
 
